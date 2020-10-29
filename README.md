@@ -1,1 +1,3 @@
-System.AffinityWatcher
+# System.AffinityWatcher
+
+Processes watcher for cores affinity.
