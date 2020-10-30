@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <affinity_watcher_config>
-    <processes>
-      <process name="notepad.exe" affinity="1"></process>
-    </processes>
+  <processes>
+    <process name="notepad.exe" affinity="1"></process>
+    <process name="notepad++.exe" affinity="2"></process>
+  </processes>
 </affinity_watcher_config>

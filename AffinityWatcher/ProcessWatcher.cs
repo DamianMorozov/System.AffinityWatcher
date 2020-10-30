@@ -40,11 +40,12 @@ namespace AffinityWatcher
 
             try
             {
+                ProcessRunedSearch();
+
                 _watcher = new ManagementEventWatcher(new WqlEventQuery("select * from win32_processstarttrace"));
                 //_watcher = new ManagementEventWatcher(new WqlEventQuery("select processid, executablepath, commandline from win32_process"));
                 _watcher.EventArrived += ProcessStartHandler;
                 _watcher.Start();
-                ProcessStartSearchAll();
             }
             catch
             {
@@ -78,47 +79,45 @@ namespace AffinityWatcher
             // apply any matching process config we have
             if (_processes.TryGetValue(name, out ProcConfig processConfig))
             {
-                Console.WriteLine(@"Process detected with name ""{name}"" and PID {pid}");
-
                 Process proc;
                 try
                 {
                     proc = Process.GetProcessById((int)pid);
+                    Console.WriteLine($@"Process detected. Name: {proc.ProcessName}, PID: {proc.Id}.");
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Console.WriteLine($@"Unable to get process with PID {pid}: {e.Message}");
+                    Console.WriteLine($@"Exception of detected process: {ex.Message}");
                     return;
                 }
 
                 try
                 {
                     ChangeProcessAffinity(proc, processConfig.TargetAffinity);
-                    Console.WriteLine($@"Changed affinity of process with PID {pid} (delay {TimeSince(timeOf).TotalMilliseconds}ms)");
+                    Console.WriteLine($@"Changed affinity of process. Delay: {TimeSince(timeOf).TotalMilliseconds}ms.");
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Console.WriteLine($@"Unable to change affinity of process with PID {pid}: {e.Message}");
+                    Console.WriteLine($@"Exception of changing affinity: {ex.Message}");
                 }
             }
         }
 
-        private void ProcessStartSearchAll()
+        private void ProcessRunedSearch()
         {
             foreach (var proc in Process.GetProcesses())
             {
-                if (_processes.TryGetValue(proc.ProcessName, out ProcConfig processConfig))
+                if (_processes.TryGetValue($"{proc.ProcessName}.exe", out ProcConfig processConfig))
                 {
-                    Console.WriteLine(@"Process detected with name ""{name}"" and PID {pid}");
-
+                    Console.WriteLine($@"Process detected. Name: {proc.ProcessName}, PID: {proc.Id}.");
                     try
                     {
                         ChangeProcessAffinity(proc, processConfig.TargetAffinity);
-                        Console.WriteLine($@"Changed affinity of process with PID {proc.Id} (StartTime {proc.StartTime})");
+                        Console.WriteLine(@"Changed affinity of process.");
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        Console.WriteLine($@"Unable to change affinity of process with PID {proc.Id}: {e.Message}");
+                        Console.WriteLine($@"Exception of changing affinity: {ex.Message}");
                     }
                 }
             }
