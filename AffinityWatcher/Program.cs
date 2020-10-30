@@ -16,7 +16,7 @@ namespace AffinityWatcher
 
         #region Public and private methods
 
-        internal static void Main()
+        internal static void Main(string[] args)
         {
             try
             {
@@ -26,14 +26,17 @@ namespace AffinityWatcher
                 var watcher = new ProcessWatcher(configs);
                 watcher.Start();
 
-                var task = Task.Run(async () =>
+                if (args.Contains("-wait"))
                 {
-                    while (!Console.KeyAvailable)
+                    var task = Task.Run(async () =>
                     {
-                        await Task.Delay(TimeSpan.FromMilliseconds(100)).ConfigureAwait(false);
-                    }
-                });
-                task.Wait();
+                        while (!Console.KeyAvailable)
+                        {
+                            await Task.Delay(TimeSpan.FromMilliseconds(100)).ConfigureAwait(false);
+                        }
+                    });
+                    task.Wait();
+                }
 
                 watcher.Stop();
             }
