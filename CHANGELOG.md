@@ -6,11 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.20] - 2020-10-30
+## [0.1.21] - 2020-10-30
 ### Changed
 - Main waiting thread to task
 ### Added
 - Search running processes
+- Command line argument "-wait" for waiting run processes
 
 ## [0.1.10] - 2020-10-29
 ### Added
