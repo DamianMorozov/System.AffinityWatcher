@@ -1,9 +1,8 @@
 # System.AffinityWatcher
-Processes watcher for cores affinity.
-Changing affinity of searched processes.
-Search running processes for user.
-Wait run processes for user.
-
+Processes watcher for cores affinity. 
+Changing affinity of searched processes. 
+Search running processes for user. 
+Wait run processes for user. 
 
 ## Command line arguments:
 - -wait -- waiting run processes
@@ -20,3 +19,6 @@ Wait run processes for user.
 - Utils
 
 ![](Assets/AffinityWatcher.png?raw=true)
+
+## CPU Affinity Mask Calculator
+https://bitsum.com/tools/cpu-affinity-calculator/
