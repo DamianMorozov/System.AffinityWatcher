@@ -34,22 +34,25 @@ namespace AffinityWatcher.Tests
         {
             Utils.MethodStart();
 
-            foreach (var str in EnumValues.GetString())
+            foreach (var name in EnumValues.GetString())
             {
-                foreach (var lon in EnumValues.GetLong())
+                foreach (var affinity in EnumValues.GetLong())
                 {
-                    Assert.DoesNotThrow(() =>
+                    foreach (var user in EnumValues.GetString())
                     {
-                        var procConfig = new ProcConfig(str, lon);
-                        _ = new ProcessWatcher(new List<ProcConfig>() { procConfig });
-                    });
-                    TestContext.WriteLine($@"Assert.DoesNotThrow(() => new ProcConfig({str}, {lon}))");
-                    Assert.DoesNotThrowAsync(async () => await Task.Run(() =>
-                    {
-                        var procConfig = new ProcConfig(str, lon);
-                        _ = new ProcessWatcher(new List<ProcConfig>() { procConfig });
-                    }));
-                    TestContext.WriteLine($@"Assert.DoesNotThrowAsync(async () => new ProcConfig({str}, {lon}))");
+                        Assert.DoesNotThrow(() =>
+                        {
+                            var procConfig = new ProcessConfig(name, affinity, user);
+                            _ = new ProcessWatcher(new List<ProcessConfig>() { procConfig });
+                        });
+                        TestContext.WriteLine($@"Assert.DoesNotThrow(() => new ProcConfig({name}, {affinity}, {user}))");
+                        Assert.DoesNotThrowAsync(async () => await Task.Run(() =>
+                        {
+                            var procConfig = new ProcessConfig(name, affinity, user);
+                            _ = new ProcessWatcher(new List<ProcessConfig>() { procConfig });
+                        }));
+                        TestContext.WriteLine($@"Assert.DoesNotThrowAsync(async () => new ProcConfig({name}, {affinity}, {user}))");
+                    }
                 }
             }
 
@@ -61,24 +64,27 @@ namespace AffinityWatcher.Tests
         {
             Utils.MethodStart();
 
-            foreach (var str in EnumValues.GetString())
+            foreach (var name in EnumValues.GetString())
             {
-                foreach (var lon in EnumValues.GetLong())
+                foreach (var affinity in EnumValues.GetLong())
                 {
-                    Assert.DoesNotThrow(() =>
+                    foreach (var user in EnumValues.GetString())
                     {
-                        var procConfig = new ProcConfig(str, lon);
-                        var processWatcher = new ProcessWatcher(new List<ProcConfig>() { procConfig });
-                        processWatcher.Start();
-                    });
-                    TestContext.WriteLine($@"Assert.DoesNotThrow(() => new ProcConfig({str}, {lon}))");
-                    Assert.DoesNotThrowAsync(async () => await Task.Run(() =>
-                    {
-                        var procConfig = new ProcConfig(str, lon);
-                        var processWatcher = new ProcessWatcher(new List<ProcConfig>() { procConfig });
-                        processWatcher.Start();
-                    }));
-                    TestContext.WriteLine($@"Assert.DoesNotThrowAsync(async () => new ProcConfig({str}, {lon}))");
+                        Assert.DoesNotThrow(() =>
+                        {
+                            var procConfig = new ProcessConfig(name, affinity, user);
+                            var processWatcher = new ProcessWatcher(new List<ProcessConfig>() { procConfig });
+                            processWatcher.Start();
+                        });
+                        TestContext.WriteLine($@"Assert.DoesNotThrow(() => new ProcConfig({name}, {affinity}, {user}))");
+                        Assert.DoesNotThrowAsync(async () => await Task.Run(() =>
+                        {
+                            var procConfig = new ProcessConfig(name, affinity, user);
+                            var processWatcher = new ProcessWatcher(new List<ProcessConfig>() { procConfig });
+                            processWatcher.Start();
+                        }));
+                        TestContext.WriteLine($@"Assert.DoesNotThrowAsync(async () => new ProcConfig({name}, {affinity}, {user}))");
+                    }
                 }
             }
 
@@ -90,26 +96,29 @@ namespace AffinityWatcher.Tests
         {
             Utils.MethodStart();
 
-            foreach (var str in EnumValues.GetString())
+            foreach (var name in EnumValues.GetString())
             {
-                foreach (var lon in EnumValues.GetLong())
+                foreach (var affinity in EnumValues.GetLong())
                 {
-                    Assert.DoesNotThrow(() =>
+                    foreach (var user in EnumValues.GetString())
                     {
-                        var procConfig = new ProcConfig(str, lon);
-                        var processWatcher = new ProcessWatcher(new List<ProcConfig>() { procConfig });
-                        processWatcher.Start();
-                        processWatcher.Stop();
-                    });
-                    TestContext.WriteLine($@"Assert.DoesNotThrow(() => new ProcConfig({str}, {lon}))");
-                    Assert.DoesNotThrowAsync(async () => await Task.Run(() =>
-                    {
-                        var procConfig = new ProcConfig(str, lon);
-                        var processWatcher = new ProcessWatcher(new List<ProcConfig>() { procConfig });
-                        processWatcher.Start();
-                        processWatcher.Stop();
-                    }));
-                    TestContext.WriteLine($@"Assert.DoesNotThrowAsync(async () => new ProcConfig({str}, {lon}))");
+                        Assert.DoesNotThrow(() =>
+                        {
+                            var procConfig = new ProcessConfig(name, affinity, user);
+                            var processWatcher = new ProcessWatcher(new List<ProcessConfig>() { procConfig });
+                            processWatcher.Start();
+                            processWatcher.Stop();
+                        });
+                        TestContext.WriteLine($@"Assert.DoesNotThrow(() => new ProcConfig({name}, {affinity}, {user}))");
+                        Assert.DoesNotThrowAsync(async () => await Task.Run(() =>
+                        {
+                            var procConfig = new ProcessConfig(name, affinity, user);
+                            var processWatcher = new ProcessWatcher(new List<ProcessConfig>() { procConfig });
+                            processWatcher.Start();
+                            processWatcher.Stop();
+                        }));
+                        TestContext.WriteLine($@"Assert.DoesNotThrowAsync(async () => new ProcConfig({name}, {affinity}, {user}))");
+                    }
                 }
             }
 

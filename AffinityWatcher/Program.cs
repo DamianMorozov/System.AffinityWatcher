@@ -46,13 +46,13 @@ namespace AffinityWatcher
             }
         }
 
-        internal static void PrintConfigStatus(List<ProcConfig> configs)
+        internal static void PrintConfigStatus(List<ProcessConfig> configs)
         {
             Console.WriteLine($"{Environment.ProcessorCount} visible logical processors detected");
             Console.WriteLine($"Read data for {configs.Count} process(es):");
             foreach (var config in configs)
             {
-                Console.WriteLine($"  {config.ProcessName} => {config.TargetAffinity}");
+                Console.WriteLine($"  {config.Name} => {config.Affinity}");
             }
         }
 
@@ -61,9 +61,9 @@ namespace AffinityWatcher
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
-        internal static List<ProcConfig> ParseConfig(string filePath)
+        internal static List<ProcessConfig> ParseConfig(string filePath)
         {
-            var result = new List<ProcConfig>();
+            var result = new List<ProcessConfig>();
 
             var tree = XElement.Load(filePath);
             var xmlProcListElement = tree.Element("processes");
@@ -76,6 +76,7 @@ namespace AffinityWatcher
             {
                 var name = xmlProc.Attribute("name")?.Value;
                 var affinityStr = xmlProc.Attribute("affinity")?.Value;
+                var user = xmlProc.Attribute("user")?.Value;
 
                 if (name == null || affinityStr == null)
                 {
@@ -87,7 +88,7 @@ namespace AffinityWatcher
                     throw new Exception($@"Invalid affinity value in process list (name: {name})");
                 }
 
-                result.Add(new ProcConfig(name, affinity));
+                result.Add(new ProcessConfig(name, affinity, user));
             }
 
             return result;

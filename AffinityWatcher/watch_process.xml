@@ -2,6 +2,6 @@
 <affinity_watcher_config>
   <processes>
     <process name="notepad.exe" affinity="1"></process>
-    <process name="notepad++.exe" affinity="2"></process>
+    <process name="notepad++.exe" affinity="2" user="username"></process>
   </processes>
 </affinity_watcher_config>

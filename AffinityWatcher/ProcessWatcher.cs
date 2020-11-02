@@ -9,21 +9,21 @@ namespace AffinityWatcher
     {
         #region Public and private fields and properties
 
-        private readonly Dictionary<string, ProcConfig> _processes;
+        private readonly Dictionary<string, ProcessConfig> _processes;
         private ManagementEventWatcher _watcher;
 
         #endregion
 
         #region Constructor and destructor
 
-        public ProcessWatcher(IEnumerable<ProcConfig> procConfigs)
+        public ProcessWatcher(IEnumerable<ProcessConfig> procConfigs)
         {
             _watcher = null;
-            _processes = new Dictionary<string, ProcConfig>();
+            _processes = new Dictionary<string, ProcessConfig>();
             foreach (var config in procConfigs)
             {
-                if (!string.IsNullOrEmpty(config.ProcessName))
-                    _processes[config.ProcessName] = config;
+                if (!string.IsNullOrEmpty(config.Name))
+                    _processes[config.Name] = config;
             }
         }
 
@@ -43,7 +43,6 @@ namespace AffinityWatcher
                 ProcessRunedSearch();
 
                 _watcher = new ManagementEventWatcher(new WqlEventQuery("select * from win32_processstarttrace"));
-                //_watcher = new ManagementEventWatcher(new WqlEventQuery("select processid, executablepath, commandline from win32_process"));
                 _watcher.EventArrived += ProcessStartHandler;
                 _watcher.Start();
             }
@@ -77,62 +76,112 @@ namespace AffinityWatcher
             var pid = (uint) properties["ProcessID"].Value;
 
             // apply any matching process config we have
-            if (_processes.TryGetValue(name, out ProcConfig processConfig))
+            if (_processes.TryGetValue(name, out ProcessConfig processConfig))
             {
-                Process proc;
-                try
+                var proc = Process.GetProcessById((int)pid);
+                if (!string.IsNullOrEmpty(processConfig.User))
                 {
-                    proc = Process.GetProcessById((int)pid);
-                    Console.WriteLine($@"Process detected. Name: {proc.ProcessName}, PID: {proc.Id}.");
+                    var user = GetProcessUserName((int)pid);
+                    if (processConfig.User.ToUpper().Equals(user.ToUpper()))
+                    {
+                        Console.WriteLine($@"Process detected. Name: {proc.ProcessName}, PID: {proc.Id}. User: {user}");
+                        ChangeProcessAffinity(proc, processConfig.Affinity, timeOf);
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine($@"Exception of detected process: {ex.Message}");
-                    return;
+                    Console.WriteLine($@"Process detected. Name: {proc.ProcessName}, PID: {proc.Id}.");
+                    ChangeProcessAffinity(proc, processConfig.Affinity, timeOf);
                 }
 
-                try
+            }
+        }
+
+        /// <summary>
+        /// Get process username by pid.
+        /// </summary>
+        /// <param name="pid"></param>
+        /// <returns></returns>
+        private string GetProcessUserName(int pid)
+        {
+            var result = string.Empty;
+            try
+            {
+                var searcher = new ManagementObjectSearcher($"select * from win32_process where processid = '{pid}'");
+                if (searcher.Get().Count == 0)
+                    return result;
+                if (searcher.Get().Count == 1)
                 {
-                    ChangeProcessAffinity(proc, processConfig.TargetAffinity);
-                    Console.WriteLine($@"Changed affinity of process. Delay: {TimeSince(timeOf).TotalMilliseconds}ms.");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($@"Exception of changing affinity: {ex.Message}");
+                    foreach (var item in searcher.Get())
+                    {
+                        var process = (ManagementObject) item;
+                        if (process["ExecutablePath"] != null)
+                        {
+                            //string ExecutablePath = process["ExecutablePath"].ToString();
+                            var ownerInfo = new object[2];
+                            process.InvokeMethod("GetOwner", ownerInfo);
+                            result = ownerInfo[0].ToString();
+                        }
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
+                if (!(ex.InnerException is null))
+                    msg += " " + ex.InnerException.Message;
+                Console.WriteLine($@"Exception of getting process username. {msg}");
+            }
+            return result;
         }
 
         private void ProcessRunedSearch()
         {
             foreach (var proc in Process.GetProcesses())
             {
-                if (_processes.TryGetValue($"{proc.ProcessName}.exe", out ProcConfig processConfig))
+                if (_processes.TryGetValue($"{proc.ProcessName}.exe", out ProcessConfig processConfig))
                 {
-                    Console.WriteLine($@"Process detected. Name: {proc.ProcessName}, PID: {proc.Id}.");
-                    try
+                    if (!string.IsNullOrEmpty(processConfig.User))
                     {
-                        ChangeProcessAffinity(proc, processConfig.TargetAffinity);
-                        Console.WriteLine(@"Changed affinity of process.");
+                        var user = GetProcessUserName(proc.Id);
+                        if (processConfig.User.ToUpper().Equals(user.ToUpper()))
+                        {
+                            Console.WriteLine($@"Process detected. Name: {proc.ProcessName}, PID: {proc.Id}. User: {user}");
+                            ChangeProcessAffinity(proc, processConfig.Affinity);
+                        }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Console.WriteLine($@"Exception of changing affinity: {ex.Message}");
+                        Console.WriteLine($@"Process detected. Name: {proc.ProcessName}, PID: {proc.Id}.");
+                        ChangeProcessAffinity(proc, processConfig.Affinity);
                     }
                 }
             }
         }
 
-        private TimeSpan TimeSince(DateTime then)
+        private static TimeSpan TimeSince(DateTime then)
         {
             var now = DateTime.Now;
             return now > then ? now.Subtract(then) : new TimeSpan(0, 0, 0);
         }
 
-        private static void ChangeProcessAffinity(Process ps, long affinityMask)
+        private static void ChangeProcessAffinity(Process ps, long affinityMask, DateTime timeOf = default)
         {
-            var oldMask = (long)ps.ProcessorAffinity;
-            ps.ProcessorAffinity = (IntPtr)(oldMask & affinityMask);
+            try
+            {
+                var oldMask = (long)ps.ProcessorAffinity;
+                ps.ProcessorAffinity = (IntPtr)(oldMask & affinityMask);
+                Console.WriteLine(timeOf != default
+                    ? $@"Changed affinity of process. Delay: {TimeSince(timeOf).TotalMilliseconds}ms."
+                    : @"Changed affinity of process.");
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
+                if (!(ex.InnerException is null))
+                    msg += " " + ex.InnerException.Message;
+                Console.WriteLine($@"Exception of changing process affinity. {msg}");
+            }
         }
 
         #endregion

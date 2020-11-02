@@ -33,20 +33,23 @@ namespace AffinityWatcher.Tests
         {
             Utils.MethodStart();
 
-            foreach (var str in EnumValues.GetString())
+            foreach (var name in EnumValues.GetString())
             {
-                foreach (var lon in EnumValues.GetLong())
+                foreach (var affinity in EnumValues.GetLong())
                 {
-                    Assert.DoesNotThrow(() =>
+                    foreach (var user in EnumValues.GetString())
                     {
-                        _ = new ProcConfig(str, lon);
-                    });
-                    TestContext.WriteLine($@"Assert.DoesNotThrow(() => new ProcConfig({str}, {lon}))");
-                    Assert.DoesNotThrowAsync(async () => await Task.Run(() =>
-                    {
-                        _ = new ProcConfig(str, lon);
-                    }));
-                    TestContext.WriteLine($@"Assert.DoesNotThrowAsync(async () => new ProcConfig({str}, {lon}))");
+                        Assert.DoesNotThrow(() =>
+                        {
+                            _ = new ProcessConfig(name, affinity, user);
+                        });
+                        TestContext.WriteLine($@"Assert.DoesNotThrow(() => new ProcConfig({name}, {affinity}, {user}))");
+                        Assert.DoesNotThrowAsync(async () => await Task.Run(() =>
+                        {
+                            _ = new ProcessConfig(name, affinity, user);
+                        }));
+                        TestContext.WriteLine($@"Assert.DoesNotThrowAsync(async () => new ProcConfig({name}, {affinity}, {user}))");
+                    }
                 }
             }
 
