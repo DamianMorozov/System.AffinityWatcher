@@ -4,6 +4,9 @@ Changing affinity of searched processes.
 Search running processes for user. 
 Wait run processes for user. 
 
+![Latest Version](https://img.shields.io/github/release/DamianMorozov/System.AffinityWatcher.svg)
+![Downloads](https://img.shields.io/github/downloads/DamianMorozov/System.AffinityWatcher/total.svg)
+
 ## Command line arguments:
 - -wait -- waiting run processes
 
