@@ -25,3 +25,6 @@ Wait run processes for user.
 
 ## CPU Affinity Mask Calculator
 https://bitsum.com/tools/cpu-affinity-calculator/
+
+# Support
+Please click the `star` button if this tool was helpful to you.
